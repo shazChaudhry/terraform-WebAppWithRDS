@@ -11,7 +11,7 @@ Inspriration for this repo came from this [tutorial;](http://docs.aws.amazon.com
 This repository uses AWS provided modules from [Terraform Module Registry](https://registry.terraform.io/)
 
 ### Assumption
-- It is assumed you are already familier with the tutorial mentioned in the reference section below
+- It is assumed you are already familier with the tutorial mentioned above
 - You have installed Terraform >= v0.10.7
 - AWS credentials are available at: "~/.aws/credentials"
 ```
