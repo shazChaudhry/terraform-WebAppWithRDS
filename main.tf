@@ -258,7 +258,7 @@ resource "null_resource" "file_transfer" {
     connection {
       type = "ssh"
       user = "ec2-user"
-      host    = "${module.WebServer.private_dns}"
+      host    = "${module.WebServer.public_dns}"
     }
   }
 }
