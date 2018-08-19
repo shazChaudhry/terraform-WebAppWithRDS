@@ -257,7 +257,7 @@ module "WebServer" {
   find /var/www -type d -exec sudo chmod 2775 {} +
   find /var/www -type f -exec sudo chmod 0664 {} +
   echo "<?php" >> /var/www/html/calldb.php
-  echo "\$conn = new mysqli('webappdb.c9oyxmgvbt66.eu-west-2.rds.amazonaws.com', 'webapp', 'Password01', 'webapp');" >> /var/www/html/calldb.php
+  echo "\$conn = new mysqli('mysql.ci.internal', 'webapp', 'Password01', 'webapp');" >> /var/www/html/calldb.php
   echo "\$sql1 = 'CREATE TABLE mytable (mycol varchar(255))'; " >> /var/www/html/calldb.php
   echo "\$conn->query(\$sql1); " >>  /var/www/html/calldb.php
   echo "\$sql2 = 'INSERT INTO mytable (mycol) values ('linuxacademythebest')'; " >> /var/www/html/calldb.php
