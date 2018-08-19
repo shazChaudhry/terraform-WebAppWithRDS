@@ -99,18 +99,19 @@ module "rds" {
   source  = "terraform-aws-modules/rds/aws"
   version = "1.21.0"
 
-  allocated_storage         = 20
-  engine                    = "mysql"
-  username                  = "webapp"
-  password                  = "Password01"
-  engine_version            = "5.7.22"
-  identifier                = "webappdb"
-  instance_class            = "db.t2.micro"
-  name                      = "webapp"
-  port                      = "3306"
-  copy_tags_to_snapshot     = true
-  family                    = "mysql5.7"
-  major_engine_version      = "5.7"
+  allocated_storage     = 20
+  engine                = "mysql"
+  username              = "webapp"
+  password              = "Password01"
+  engine_version        = "5.7.22"
+  identifier            = "webappdb"
+  instance_class        = "db.t2.micro"
+  name                  = "webapp"
+  port                  = "3306"
+  copy_tags_to_snapshot = true
+  family                = "mysql5.7"
+  major_engine_version  = "5.7"
+
   # skip_final_snapshot       = false
   # final_snapshot_identifier = "webappdb-final"
 
@@ -118,17 +119,13 @@ module "rds" {
   # This correlates to the snapshot ID you'd find in the RDS console, e.g: rds:production-2015-06-26-06-05.
   # snapshot_identifier = webappdb-final
   subnet_ids = ["${module.vpc.private_subnets}"]
-
-  vpc_security_group_ids = ["${module.DB_sg.this_security_group_id}"]
-
-  allow_major_version_upgrade = true
-  auto_minor_version_upgrade  = true
-  backup_retention_period     = 5
-  backup_window               = "03:00-06:00"
-  maintenance_window          = "Mon:00:00-Mon:03:00"
-
+  vpc_security_group_ids              = ["${module.DB_sg.this_security_group_id}"]
+  allow_major_version_upgrade         = true
+  auto_minor_version_upgrade          = true
+  backup_retention_period             = 5
+  backup_window                       = "03:00-06:00"
+  maintenance_window                  = "Mon:00:00-Mon:03:00"
   iam_database_authentication_enabled = true
-
   parameters = [
     {
       name  = "character_set_client"
@@ -139,7 +136,6 @@ module "rds" {
       value = "utf8"
     },
   ]
-
   options = [
     {
       option_name = "MARIADB_AUDIT_PLUGIN"
@@ -156,7 +152,6 @@ module "rds" {
       ]
     },
   ]
-
   tags = {
     Name        = "mysql"
     Owner       = "${var.tags[0]}"
@@ -250,24 +245,22 @@ module "WebServer" {
   yum install -y httpd24 php56 php56-mysqlnd
   service httpd start
   chkconfig httpd on
-  groupadd www
-  usermod -a -G www ec2-user
-  chown -R root:www /var/www
-  chmod 2775 /var/www
-  find /var/www -type d -exec sudo chmod 2775 {} +
-  find /var/www -type f -exec sudo chmod 0664 {} +
-  echo "<?php" >> /var/www/html/calldb.php
-  echo "\$conn = new mysqli('mysql.ci.internal', 'webapp', 'Password01', 'webapp');" >> /var/www/html/calldb.php
-  echo "\$sql1 = 'CREATE TABLE mytable (mycol varchar(255))'; " >> /var/www/html/calldb.php
-  echo "\$conn->query(\$sql1); " >>  /var/www/html/calldb.php
-  echo "\$sql2 = 'INSERT INTO mytable (mycol) values ('linuxacademythebest')'; " >> /var/www/html/calldb.php
-  echo "\$conn->query(\$sql2); " >>  /var/www/html/calldb.php
-  echo "\$sql3 = 'SELECT * FROM mytable'; " >> /var/www/html/calldb.php
-  echo "\$result = \$conn->query(\$sql3); " >>  /var/www/html/calldb.php
-  echo "while(\$row = \$result->fetch_assoc()) { echo 'the value is: ' . \$row['mycol'] ;} " >> /var/www/html/calldb.php
-  echo "\$conn->close(); " >> /var/www/html/calldb.php
-  echo "?>" >> /var/www/html/calldb.php
+  chmod -R 777 /var/www/html
 HEREDOC
+}
+
+resource "null_resource" "file_transfer" {
+  # This provisioner is not supported by the WebServer module above
+  provisioner "file" {
+    source      = "${path.module}/files/calldb.php"
+    destination = "/var/www/html/calldb.php"
+
+    connection {
+      type = "ssh"
+      user = "ec2-user"
+      host    = "${module.WebServer.private_dns}"
+    }
+  }
 }
 
 terraform {
