@@ -12,7 +12,8 @@ This repository uses AWS provided modules from [Terraform Module Registry](https
 
 ### Assumption
 - It is assumed you are already familier with the tutorial mentioned above
-- You have installed Terraform >= v0.10.7
+- You have internet connection from the machine running Terraform
+- You have installed Terraform version >= 0.11.8
 - AWS credentials are available at: "~/.aws/credentials"
 ```
 [default]
@@ -24,8 +25,8 @@ aws_secret_access_key = <SECRET>
 ```
 git clone git@github.com:shazChaudhry/terraform-WebAppWithRDS.git && cd terraform-WebAppWithRDS
 terraform init
-terraform plan -out=tfplan
-terraform apply tfplan
+terraform plan
+terraform apply -auto-approve
 ```
 
 ### Clean up
