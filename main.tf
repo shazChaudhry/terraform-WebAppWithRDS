@@ -252,7 +252,8 @@ resource "null_resource" "file_transfer" {
       "sudo yum update -y",
       "sudo yum install -y httpd24 php56 php56-mysqlnd",
       "sudo service httpd start",
-      "sudo chkconfig httpd on"
+      "sudo chkconfig httpd on",
+      "sudo chmod -R 777 /var/www/html"
     ]
   }
 
