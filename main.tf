@@ -237,24 +237,29 @@ module "WebServer" {
     Owner       = "${var.tags[0]}"
     Environment = "${var.tags[1]}"
   }
-
-  # The user data to provide when launching the instance
-  user_data = <<HEREDOC
-  #!/bin/bash
-  yum update -y
-  yum install -y httpd24 php56 php56-mysqlnd
-  service httpd start
-  chkconfig httpd on
-  chmod -R 777 /var/www/html
-HEREDOC
 }
 
 resource "null_resource" "file_transfer" {
+
+  provisioner "remote-exec" {
+    inline = [
+      "yum update -y",
+      "yum install -y httpd24 php56 php56-mysqlnd",
+      "service httpd start",
+      "chkconfig httpd on",
+      "chmod -R 777 /var/www/html"
+    ]
+    connection {
+      # type = "ssh"
+      # user = "root"
+      host    = "${module.WebServer.public_dns}"
+    }
+  }
+
   # This provisioner is not supported by the WebServer module above
   provisioner "file" {
     source      = "${path.module}/files/calldb.php"
     destination = "/var/www/html/calldb.php"
-
     connection {
       type = "ssh"
       user = "ec2-user"
