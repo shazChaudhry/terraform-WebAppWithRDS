@@ -241,30 +241,27 @@ module "WebServer" {
 
 resource "null_resource" "file_transfer" {
 
+
+  connection {
+    type = "ssh"
+    user = "ec2-user"
+    host    = "${module.WebServer.public_dns}"
+  }
+
   provisioner "remote-exec" {
     inline = [
-      "yum update -y",
-      "yum install -y httpd24 php56 php56-mysqlnd",
-      "service httpd start",
-      "chkconfig httpd on",
-      "chmod -R 777 /var/www/html"
+      "sudo yum update -y",
+      "sudo yum install -y httpd24 php56 php56-mysqlnd",
+      "sudo service httpd start",
+      "sudo chkconfig httpd on",
+      "sudo chmod -R 777 /var/www/html"
     ]
-    connection {
-      # type = "ssh"
-      # user = "root"
-      host    = "${module.WebServer.public_dns}"
-    }
   }
 
   # This provisioner is not supported by the WebServer module above
   provisioner "file" {
     source      = "${path.module}/files/calldb.php"
     destination = "/var/www/html/calldb.php"
-    connection {
-      type = "ssh"
-      user = "ec2-user"
-      host    = "${module.WebServer.public_dns}"
-    }
   }
 }
 
